@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GreenPeak · Debt Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-dark:#141413; --c-dark-80:#1e1d1b; --c-dark-70:#252320;
+  --c-light:#faf9f5; --c-accent:#d97757; --c-accent-dark:#b85e3e;
+  --c-accent-glow:rgba(217,119,87,.18); --c-accent-rim:rgba(217,119,87,.35);
+  --c-text-dim:#c9c4bb; --c-muted:#6b6560; --c-blue:#6a9bcc;
+  --c-border:rgba(255,255,255,.08); --c-glass:rgba(255,255,255,.04);
+  --c-status-active:#788c5d; --c-status-selective:#d4a957;
+  --radius:18px; --radius-sm:10px; --radius-pill:999px;
+  --nav-h:68px; --ease:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{font-family:'Poppins',sans-serif;background:var(--c-dark);color:var(--c-text-dim);overflow-x:hidden;line-height:1.65}
+h1,h2,h3{font-family:'Lora',serif;font-weight:600;color:var(--c-light);letter-spacing:-.02em}
+em{font-style:italic;color:var(--c-accent)}
+.container{max-width:1240px;margin:0 auto;padding:0 48px}
+@media(max-width:768px){.container{padding:0 20px}}
+
+/* ── NAV ── */
+.nav{position:fixed;inset:0 0 auto 0;height:var(--nav-h);display:flex;align-items:center;z-index:100;
+  background:rgba(20,20,19,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--c-border)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;width:100%;gap:24px}
+.nav-back{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;color:rgba(250,249,245,.5);
+  text-decoration:none;transition:color .15s}
+.nav-back:hover{color:var(--c-light)}
+.nav-back svg{transition:transform .15s}
+.nav-back:hover svg{transform:translateX(-3px)}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-mark svg{display:block}
+.logo-wordmark{font-family:'Poppins',sans-serif;font-weight:800;font-size:18px;letter-spacing:-.04em;color:var(--c-light)}
+.logo-dot{color:var(--c-accent)}
+.nav-pill{font-family:'Poppins',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--c-accent);background:var(--c-accent-glow);
+  border:1px solid var(--c-accent-rim);border-radius:var(--radius-pill);padding:5px 14px}
+
+/* ── LAYOUT ── */
+main{padding-top:var(--nav-h)}
+.hero{padding:52px 0 36px}
+.hero-eyebrow{font-family:'Poppins',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--c-accent);display:block;margin-bottom:14px}
+.hero h1{font-size:clamp(34px,4.5vw,60px);line-height:1.1;margin-bottom:16px}
+.hero p{font-size:16px;color:var(--c-text-dim);max-width:680px;line-height:1.72}
+
+.sub-tabs{display:flex;gap:6px;margin:28px 0;padding:5px;background:rgba(255,255,255,.04);
+  border:1px solid var(--c-border);border-radius:10px;width:fit-content}
+.sub-tab{font-family:'Poppins',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;padding:8px 18px;border-radius:7px;cursor:pointer;transition:all .18s;
+  color:rgba(250,249,245,.45);border:none;background:transparent}
+.sub-tab.active{background:var(--c-accent);color:var(--c-dark)}
+
+.two-col{display:grid;grid-template-columns:1fr 1.45fr;gap:44px;align-items:start;padding-bottom:72px}
+@media(max-width:1020px){.two-col{grid-template-columns:1fr}}
+
+/* ── FORM LEFT ── */
+.form-col{position:sticky;top:calc(var(--nav-h) + 20px)}
+.form-title{font-family:'Lora',serif;font-size:19px;font-weight:600;color:var(--c-light);margin-bottom:5px}
+.form-sub{font-size:12.5px;color:rgba(250,249,245,.45);margin-bottom:26px}
+.fields{display:none}
+.fields.on{display:block}
+.field{margin-bottom:22px}
+.field-label{font-family:'Poppins',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(250,249,245,.45);display:block;margin-bottom:9px}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font-family:'Poppins',sans-serif;font-size:11px;font-weight:500;padding:5px 12px;
+  border-radius:var(--radius-pill);border:1px solid var(--c-border);background:rgba(255,255,255,.03);
+  color:var(--c-text-dim);cursor:pointer;transition:all .15s;user-select:none}
+.pill:hover{border-color:var(--c-accent-rim);color:var(--c-light)}
+.pill.on{background:rgba(217,119,87,.15);border-color:var(--c-accent);color:var(--c-accent);font-weight:600}
+.slider-readout{font-family:'Lora',serif;font-size:26px;font-weight:600;color:var(--c-light);
+  letter-spacing:-.02em;margin-bottom:8px}
+.slider-readout .cur{font-size:18px}
+input[type=range]{width:100%;appearance:none;-webkit-appearance:none;height:3px;
+  background:rgba(255,255,255,.1);border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:18px;height:18px;
+  border-radius:50%;background:var(--c-accent);cursor:pointer;box-shadow:0 0 0 3px rgba(217,119,87,.2)}
+.slider-ticks{display:flex;justify-content:space-between;font-size:10px;color:var(--c-muted);margin-top:5px}
+.form-cta-wrap{margin-top:28px}
+.btn-primary{display:flex;align-items:center;justify-content:center;width:100%;height:48px;
+  background:var(--c-accent);color:var(--c-dark);font-family:'Poppins',sans-serif;font-size:13px;
+  font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:none;
+  border-radius:var(--radius-sm);cursor:pointer;transition:all .2s var(--ease)}
+.btn-primary:hover{background:var(--c-accent-dark);transform:translateY(-1px);box-shadow:0 8px 24px rgba(217,119,87,.35)}
+.form-note{font-size:11px;color:rgba(250,249,245,.35);text-align:center;margin-top:9px}
+
+/* ── PANEL RIGHT ── */
+.panel{background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.008));
+  border:1px solid var(--c-border);border-radius:14px;overflow:hidden}
+.panel-head{display:flex;justify-content:space-between;align-items:center;
+  padding:13px 22px;border-bottom:1px solid var(--c-border);background:rgba(0,0,0,.2)}
+.ph-left{display:flex;align-items:center;gap:12px;font-family:'Poppins',sans-serif;
+  font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(250,249,245,.4)}
+.ph-dots{display:flex;gap:5px}
+.ph-dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.14)}
+.ph-right{display:flex;align-items:center;gap:6px;font-family:'Poppins',sans-serif;
+  font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--c-status-active)}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--c-status-active);
+  animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(120,140,93,.4)}50%{opacity:.8;box-shadow:0 0 0 5px rgba(120,140,93,0)}}
+
+.deal-summary{display:flex;justify-content:space-between;align-items:flex-start;
+  padding:20px 26px 16px;border-bottom:1px solid var(--c-border);gap:20px}
+.ds-eyebrow{font-family:'Poppins',sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(250,249,245,.38);margin-bottom:5px}
+.ds-title{font-family:'Lora',serif;font-size:20px;font-weight:600;color:var(--c-light);
+  letter-spacing:-.015em;line-height:1.3}
+.ds-count-label{font-family:'Poppins',sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(250,249,245,.38);text-align:right;margin-bottom:3px}
+.ds-count-num{font-family:'Lora',serif;font-size:32px;font-weight:600;color:var(--c-accent);
+  letter-spacing:-.02em;line-height:1;text-align:right}
+
+/* Strongest match */
+.strongest{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;
+  padding:19px 26px;border-bottom:1px solid var(--c-border);background:rgba(217,119,87,.04)}
+.sm-name-row{display:flex;align-items:center;gap:10px;margin-bottom:5px;flex-wrap:wrap}
+.sm-name{font-family:'Lora',serif;font-size:17px;font-weight:600;color:var(--c-light);letter-spacing:-.015em;filter:blur(6px);user-select:none}
+.sm-badge{font-family:'Poppins',sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--c-accent);background:rgba(217,119,87,.12);
+  border:1px solid rgba(217,119,87,.28);padding:3px 8px;border-radius:4px}
+.sm-meta{font-family:'Poppins',sans-serif;font-size:11.5px;color:rgba(250,249,245,.48);margin-bottom:5px}
+.sm-detail{font-family:'Poppins',sans-serif;font-size:12px;font-weight:500;color:var(--c-text-dim)}
+.sm-tags{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap}
+.sm-tag{font-family:'Poppins',sans-serif;font-size:9px;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:rgba(250,249,245,.48);background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);padding:3px 8px;border-radius:4px}
+.sm-score{font-family:'Lora',serif;font-size:34px;font-weight:600;color:var(--c-accent);
+  width:68px;height:68px;border-radius:50%;border:2px solid var(--c-accent);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(217,119,87,.08)}
+
+/* Reference table */
+.ref-table{width:100%;border-collapse:collapse;font-family:'Poppins',sans-serif}
+.ref-table thead th{text-align:left;padding:10px 18px;font-size:9px;font-weight:700;letter-spacing:.13em;
+  text-transform:uppercase;color:rgba(250,249,245,.35);border-bottom:1px solid var(--c-border);
+  background:rgba(0,0,0,.12);white-space:nowrap}
+.ref-table thead th.r{text-align:right}
+.ref-table tbody td{padding:12px 18px;font-size:12px;color:var(--c-text-dim);
+  border-bottom:1px solid rgba(255,255,255,.035);vertical-align:middle}
+.ref-table tbody tr:last-child td{border-bottom:none}
+.ref-table tbody tr:hover td{background:rgba(255,255,255,.018)}
+.col-lender{font-family:'Lora',serif!important;font-size:13px!important;font-weight:600!important;
+  color:var(--c-light)!important;filter:blur(6px);user-select:none}
+.col-meta{font-size:11.5px;color:rgba(250,249,245,.48)}
+.col-score{text-align:right!important;font-family:'Lora',serif!important;font-size:16px!important;
+  font-weight:600!important;color:var(--c-accent)!important}
+.status-dot{display:inline-flex;align-items:center;gap:5px;font-family:'Poppins',sans-serif;
+  font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+.status-dot .dot{width:5px;height:5px;border-radius:50%;display:inline-block}
+.active-s{color:var(--c-status-active)}.active-s .dot{background:var(--c-status-active)}
+.select-s{color:var(--c-status-selective)}.select-s .dot{background:var(--c-status-selective)}
+
+.panel-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+  padding:12px 22px;border-top:1px solid var(--c-border);background:rgba(0,0,0,.18)}
+.pf-trust{display:flex;gap:14px;font-family:'Poppins',sans-serif;font-size:10px;font-weight:600;
+  letter-spacing:.04em;color:rgba(250,249,245,.48)}
+.pf-trust span{display:inline-flex;align-items:center;gap:5px}
+.pf-trust span::before{content:'';width:4px;height:4px;background:var(--c-accent);border-radius:50%}
+.pf-link{font-family:'Poppins',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--c-accent);cursor:pointer;transition:opacity .15s}
+.pf-link:hover{opacity:.75}
+
+/* Intelligence blocks */
+.intel-wrap{margin-top:18px;display:flex;flex-direction:column;gap:12px}
+.intel-label{font-family:'Poppins',sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(250,249,245,.38);margin-bottom:6px}
+.intel-pos{padding:17px 20px;background:rgba(255,255,255,.025);border:1px solid var(--c-border);
+  border-radius:10px;font-size:13.5px;line-height:1.7;color:var(--c-text-dim)}
+.intel-approach{padding:17px 20px;background:rgba(217,119,87,.04);border:1px solid rgba(217,119,87,.16);
+  border-radius:10px;font-size:13.5px;line-height:1.7;color:var(--c-text-dim)}
+
+/* ── LENDER BANNER ── */
+.lender-band{padding:28px 0;border-top:1px solid var(--c-border);border-bottom:1px solid var(--c-border);overflow:hidden}
+.lb-eyebrow{font-family:'Poppins',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;color:rgba(250,249,245,.32);text-align:center;margin-bottom:20px}
+.marquee-wrap{overflow:hidden;position:relative;
+  mask-image:linear-gradient(90deg,transparent 0,black 7%,black 93%,transparent 100%);
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,black 7%,black 93%,transparent 100%)}
+.marquee-track{display:flex;gap:52px;align-items:center;width:max-content;animation:scroll-l 70s linear infinite}
+.marquee-track:hover{animation-play-state:paused}
+@keyframes scroll-l{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.l-name{font-family:'Lora',serif;font-size:20px;font-weight:500;color:rgba(250,249,245,.36);
+  white-space:nowrap;flex-shrink:0;transition:color .2s;cursor:default}
+.l-name:hover{color:rgba(250,249,245,.8)}
+
+/* ── WORKFLOW ── */
+.section{padding:64px 0;border-top:1px solid var(--c-border)}
+.section h2{font-size:clamp(26px,3.5vw,42px);margin-bottom:36px}
+.wf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:1000px){.wf-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:540px){.wf-grid{grid-template-columns:1fr}}
+.wf-card{background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005));
+  border:1px solid var(--c-border);border-radius:16px;padding:28px 24px}
+.wf-num{font-family:'Lora',serif;font-size:32px;font-weight:500;font-style:italic;
+  color:var(--c-accent);margin-bottom:22px;line-height:1}
+.wf-h{font-family:'Lora',serif;font-size:17px;font-weight:600;color:var(--c-light);
+  letter-spacing:-.015em;margin-bottom:10px}
+.wf-p{font-size:13px;color:var(--c-text-dim);line-height:1.65}
+
+/* ── PROBLEM ── */
+.prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:36px}
+@media(max-width:900px){.prob-grid{grid-template-columns:1fr}}
+.prob-card{background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005));
+  border:1px solid var(--c-border);border-radius:14px;padding:30px 26px}
+.prob-icon{font-size:22px;margin-bottom:18px;opacity:.8}
+.prob-h{font-family:'Lora',serif;font-size:17px;font-weight:600;color:var(--c-light);
+  letter-spacing:-.015em;margin-bottom:10px;line-height:1.25}
+.prob-p{font-size:13px;line-height:1.68;color:var(--c-text-dim)}
+
+/* ── 100-PT MODEL ── */
+.model-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:start}
+@media(max-width:1000px){.model-grid{grid-template-columns:1fr;gap:36px}}
+.model-h{font-size:clamp(26px,3.5vw,42px);margin-bottom:22px}
+.model-p{font-size:14.5px;line-height:1.75;color:var(--c-text-dim);margin-bottom:16px}
+.model-stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--c-border);
+  padding-top:24px;margin-top:24px;gap:14px}
+.mstat-n{font-family:'Lora',serif;font-size:28px;font-weight:600;color:var(--c-light);
+  letter-spacing:-.02em;margin-bottom:5px}
+.mstat-l{font-family:'Poppins',sans-serif;font-size:10px;font-weight:700;letter-spacing:.13em;
+  text-transform:uppercase;color:rgba(250,249,245,.42)}
+.criteria-panel{background:linear-gradient(180deg,rgba(217,119,87,.05),rgba(217,119,87,.01));
+  border:1px solid rgba(217,119,87,.18);border-radius:14px;padding:28px 26px}
+.criteria-ey{font-family:'Poppins',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--c-accent);margin-bottom:16px}
+.criteria-list{display:grid;grid-template-columns:repeat(2,1fr);gap:5px 18px}
+.criterion{font-family:'Poppins',sans-serif;font-size:12px;color:var(--c-text-dim);
+  padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);
+  display:flex;align-items:center;gap:8px}
+.criterion::before{content:'';width:4px;height:4px;background:var(--c-accent);border-radius:50%;flex-shrink:0}
+.criterion:nth-last-child(-n+2){border-bottom:none}
+
+/* ── FINAL CTA ── */
+.final-cta{padding:80px 0;border-top:1px solid var(--c-border);text-align:center;
+  position:relative;overflow:hidden}
+.final-cta::before{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(217,119,87,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(217,119,87,.02) 1px,transparent 1px);
+  background-size:44px 44px;pointer-events:none}
+.cta-inner{position:relative;z-index:1}
+.cta-ey-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:20px}
+.cta-rule{width:40px;height:1px;background:var(--c-accent)}
+.cta-ey{font-family:'Poppins',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--c-accent)}
+.cta-h{font-family:'Lora',serif;font-size:clamp(32px,4.5vw,60px);font-weight:600;color:var(--c-light);
+  letter-spacing:-.025em;margin-bottom:20px;line-height:1.08}
+.cta-p{font-size:15.5px;color:var(--c-text-dim);max-width:580px;margin:0 auto 40px}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:64px}
+.btn-glow{background:var(--c-accent);color:var(--c-dark);height:52px;padding:0 32px;
+  font-family:'Poppins',sans-serif;font-size:12.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;border:none;border-radius:10px;cursor:pointer;
+  box-shadow:0 0 56px rgba(217,119,87,.3),0 6px 22px rgba(217,119,87,.2);transition:all .2s var(--ease)}
+.btn-glow:hover{transform:translateY(-2px);box-shadow:0 0 72px rgba(217,119,87,.42),0 8px 28px rgba(217,119,87,.32)}
+.btn-ghost{background:transparent;color:var(--c-accent);height:52px;padding:0 28px;
+  font-family:'Poppins',sans-serif;font-size:12.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;border:1.5px solid rgba(217,119,87,.38);border-radius:10px;
+  cursor:pointer;transition:all .18s}
+.btn-ghost:hover{border-color:var(--c-accent);background:rgba(217,119,87,.08)}
+.cta-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:820px;
+  margin:0 auto;padding-top:36px;border-top:1px solid var(--c-border)}
+@media(max-width:600px){.cta-stats{grid-template-columns:repeat(2,1fr)}}
+.cstat-n{font-family:'Lora',serif;font-size:28px;font-weight:600;color:var(--c-light);
+  letter-spacing:-.02em;margin-bottom:6px}
+.cstat-l{font-family:'Poppins',sans-serif;font-size:10px;font-weight:700;letter-spacing:.13em;
+  text-transform:uppercase;color:rgba(250,249,245,.42)}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72);
+  backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--c-dark-80);border:1px solid var(--c-border);border-radius:18px;
+  padding:40px;max-width:500px;width:100%;position:relative;animation:fadeUp .28s var(--ease) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.modal-x{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,.06);border:none;color:var(--c-text-dim);font-size:17px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.modal-x:hover{background:rgba(255,255,255,.12)}
+.modal h3{font-family:'Lora',serif;font-size:22px;color:var(--c-light);margin-bottom:6px}
+.modal-sub{font-size:13px;color:rgba(250,249,245,.48);margin-bottom:22px}
+.modal-deal-tag{background:rgba(217,119,87,.1);border:1px solid rgba(217,119,87,.24);border-radius:8px;
+  padding:9px 14px;font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;
+  color:var(--c-accent);margin-bottom:22px}
+.fi{margin-bottom:14px}
+.fi-label{font-family:'Poppins',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:rgba(250,249,245,.45);display:block;margin-bottom:6px}
+.fi-input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--c-border);
+  border-radius:9px;padding:11px 14px;font-family:'Poppins',sans-serif;font-size:13.5px;
+  color:var(--c-light);outline:none;transition:border-color .15s}
+.fi-input:focus{border-color:rgba(217,119,87,.4)}
+.fi-input::placeholder{color:rgba(250,249,245,.25)}
+.fi-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.consent{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:rgba(250,249,245,.42);
+  margin:16px 0 22px;cursor:pointer}
+.consent input{margin-top:2px;accent-color:var(--c-accent)}
+.modal-submit{width:100%;height:48px;background:var(--c-accent);color:var(--c-dark);
+  font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;border:none;border-radius:10px;cursor:pointer;transition:all .18s}
+.modal-submit:hover{background:var(--c-accent-dark)}
+
+/* confirm */
+.confirm{text-align:center;padding:10px 0}
+.confirm-check{font-size:44px;margin-bottom:16px}
+.confirm h3{font-family:'Lora',serif;font-size:22px;color:var(--c-light);margin-bottom:8px}
+.confirm-sub{font-size:13.5px;color:rgba(250,249,245,.5);margin-bottom:24px}
+.confirm-steps{text-align:left;background:rgba(255,255,255,.04);border:1px solid var(--c-border);
+  border-radius:10px;padding:18px 20px;margin-bottom:20px}
+.cs-item{display:flex;gap:10px;font-size:13px;color:var(--c-text-dim);padding:7px 0;
+  border-bottom:1px solid rgba(255,255,255,.05)}
+.cs-item:last-child{border-bottom:none}
+.cs-num{font-family:'Lora',serif;font-weight:600;color:var(--c-accent);width:20px;flex-shrink:0}
+.confirm-cal{background:rgba(217,119,87,.08);border:1px solid rgba(217,119,87,.2);border-radius:10px;
+  padding:16px 18px;font-size:13px;color:var(--c-text-dim);cursor:pointer}
+.confirm-cal strong{color:var(--c-light);font-family:'Lora',serif}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="container nav-inner">
+    <a class="nav-back" href="https://greenpeakmgmt.lovable.app" target="_self">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to GreenPeak
+    </a>
+    <a class="logo" href="https://greenpeakmgmt.lovable.app" target="_self">
+      <div class="logo-mark">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 22L13.5 6L23 22" stroke="none"/>
+          <line x1="3" y1="23" x2="14" y2="5" stroke="#d97757" stroke-width="3" stroke-linecap="round"/>
+          <line x1="13" y1="7" x2="25" y2="23" stroke="#d97757" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="logo-wordmark">GreenPeak<span class="logo-dot">.</span></div>
+    </a>
+    <div class="nav-pill">Debt Intelligence</div>
+  </div>
+</nav>
+
+<main>
+<div class="container">
+
+  <div class="hero">
+    <span class="hero-eyebrow">Debt Intelligence</span>
+    <h1>Your deal. Matched to the right lender. <em>In hours, not weeks.</em></h1>
+    <p>GreenPeak's capital matching engine — built for institutional sponsors, fund managers, asset owners, and capital-seeking platforms across European real estate and infrastructure. Ranked counterparties, scored against your deal in real time, drawing on thousands of reference transactions and 25 years of principal-level relationships.</p>
+  </div>
+
+  <div class="sub-tabs">
+    <button class="sub-tab active" onclick="setU('re',this)">Real Estate</button>
+    <button class="sub-tab" onclick="setU('infra',this)">Infrastructure &amp; Energy</button>
+  </div>
+
+  <div class="two-col">
+
+    <!-- FORM LEFT -->
+    <div class="form-col">
+      <div class="form-title" id="ftitle">Tell us the basics</div>
+      <div class="form-sub">Five questions. Ninety seconds.</div>
+
+      <!-- RE fields -->
+      <div class="fields on" id="fre">
+        <div class="field">
+          <span class="field-label">Asset class</span>
+          <div class="pills" data-f="re-asset">
+            <span class="pill" data-v="Affordable housing">Affordable housing</span>
+            <span class="pill" data-v="Healthcare">Healthcare</span>
+            <span class="pill on" data-v="Hospitality">Hospitality</span>
+            <span class="pill" data-v="Life sciences">Life sciences</span>
+            <span class="pill" data-v="Light industrial">Light industrial</span>
+            <span class="pill" data-v="Logistics">Logistics</span>
+            <span class="pill" data-v="Mixed-use">Mixed-use</span>
+            <span class="pill" data-v="Office">Office</span>
+            <span class="pill" data-v="PRS">Residential / PRS</span>
+            <span class="pill" data-v="Retail">Retail</span>
+            <span class="pill" data-v="Self-storage">Self-storage</span>
+            <span class="pill" data-v="Senior living">Senior living</span>
+            <span class="pill" data-v="Serviced apartments">Serviced apartments</span>
+            <span class="pill" data-v="PBSA">Student (PBSA)</span>
+            <span class="pill" data-v="Other">Other</span>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Geography</span>
+          <div class="pills" data-f="re-geo">
+            <span class="pill" data-v="Austria">Austria</span>
+            <span class="pill" data-v="Belgium">Belgium</span>
+            <span class="pill" data-v="Czechia">Czechia</span>
+            <span class="pill" data-v="Denmark">Denmark</span>
+            <span class="pill" data-v="Finland">Finland</span>
+            <span class="pill" data-v="France">France</span>
+            <span class="pill on" data-v="Germany">Germany</span>
+            <span class="pill" data-v="Ireland">Ireland</span>
+            <span class="pill" data-v="Italy">Italy</span>
+            <span class="pill" data-v="Luxembourg">Luxembourg</span>
+            <span class="pill" data-v="Netherlands">Netherlands</span>
+            <span class="pill" data-v="Norway">Norway</span>
+            <span class="pill" data-v="Poland">Poland</span>
+            <span class="pill" data-v="Portugal">Portugal</span>
+            <span class="pill" data-v="Spain">Spain</span>
+            <span class="pill" data-v="Sweden">Sweden</span>
+            <span class="pill" data-v="Switzerland">Switzerland</span>
+            <span class="pill" data-v="UK">UK</span>
+            <span class="pill" data-v="Other">Other</span>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Capital stack position</span>
+          <div class="pills" data-f="re-cap">
+            <span class="pill on" data-v="Senior">Senior</span>
+            <span class="pill" data-v="Junior / Mezzanine">Junior / Mezzanine</span>
+            <span class="pill" data-v="Preferred Equity">Preferred Equity</span>
+            <span class="pill" data-v="JV Equity">JV Equity</span>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Deal size</span>
+          <div class="slider-readout"><span class="cur">€</span><span id="re-sz-out">50</span>m</div>
+          <input type="range" min="5" max="200" value="50" step="5" oninput="document.getElementById('re-sz-out').textContent=this.value;render()">
+          <div class="slider-ticks"><span>€5m</span><span>€50m</span><span>€100m</span><span>€200m+</span></div>
+        </div>
+        <div class="field">
+          <span class="field-label">Stage</span>
+          <div class="pills" data-f="re-stage">
+            <span class="pill on" data-v="Acquisition">Acquisition</span>
+            <span class="pill" data-v="Construction takeout">Construction takeout</span>
+            <span class="pill" data-v="Development">Development</span>
+            <span class="pill" data-v="Recap">Recap</span>
+            <span class="pill" data-v="Refinance">Refinance</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Infra fields -->
+      <div class="fields" id="finfra">
+        <div class="field">
+          <span class="field-label">Sector</span>
+          <div class="pills" data-f="infra-asset">
+            <span class="pill on" data-v="BESS">Battery storage (BESS)</span>
+            <span class="pill" data-v="Biogas">Biogas / biomethane</span>
+            <span class="pill" data-v="Data centres">Data centres</span>
+            <span class="pill" data-v="District heating">District heating</span>
+            <span class="pill" data-v="EV charging">EV charging</span>
+            <span class="pill" data-v="Fibre">Fibre / telecom towers</span>
+            <span class="pill" data-v="Grid">Grid / transmission</span>
+            <span class="pill" data-v="Hydrogen">Hydrogen</span>
+            <span class="pill" data-v="Offshore wind">Offshore wind</span>
+            <span class="pill" data-v="Onshore wind">Onshore wind</span>
+            <span class="pill" data-v="Pumped hydro">Pumped hydro</span>
+            <span class="pill" data-v="Solar PV">Solar PV</span>
+            <span class="pill" data-v="Transport">Transport / mobility</span>
+            <span class="pill" data-v="Waste-to-energy">Waste-to-energy</span>
+            <span class="pill" data-v="Water">Water / desalination</span>
+            <span class="pill" data-v="Other">Other</span>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Geography</span>
+          <div class="pills" data-f="infra-geo">
+            <span class="pill" data-v="Austria">Austria</span>
+            <span class="pill" data-v="Belgium">Belgium</span>
+            <span class="pill" data-v="Czechia">Czechia</span>
+            <span class="pill" data-v="Denmark">Denmark</span>
+            <span class="pill" data-v="Finland">Finland</span>
+            <span class="pill" data-v="France">France</span>
+            <span class="pill" data-v="Germany">Germany</span>
+            <span class="pill" data-v="Greece">Greece</span>
+            <span class="pill" data-v="Ireland">Ireland</span>
+            <span class="pill" data-v="Italy">Italy</span>
+            <span class="pill" data-v="Netherlands">Netherlands</span>
+            <span class="pill" data-v="Norway">Norway</span>
+            <span class="pill" data-v="Poland">Poland</span>
+            <span class="pill" data-v="Portugal">Portugal</span>
+            <span class="pill on" data-v="Spain">Spain</span>
+            <span class="pill" data-v="Sweden">Sweden</span>
+            <span class="pill" data-v="Switzerland">Switzerland</span>
+            <span class="pill" data-v="UK">UK</span>
+            <span class="pill" data-v="Other">Other</span>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Capital stack position</span>
+          <div class="pills" data-f="infra-cap">
+            <span class="pill on" data-v="Senior">Senior</span>
+            <span class="pill" data-v="Junior / Mezzanine">Junior / Mezzanine</span>
+            <span class="pill" data-v="Preferred Equity">Preferred Equity</span>
+            <span class="pill" data-v="JV Equity">JV Equity</span>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Deal size</span>
+          <div class="slider-readout"><span class="cur">€</span><span id="infra-sz-out">60</span>m</div>
+          <input type="range" min="10" max="200" value="60" step="10" oninput="document.getElementById('infra-sz-out').textContent=this.value;render()">
+          <div class="slider-ticks"><span>€10m</span><span>€50m</span><span>€100m</span><span>€200m+</span></div>
+        </div>
+        <div class="field">
+          <span class="field-label">Stage</span>
+          <div class="pills" data-f="infra-stage">
+            <span class="pill on" data-v="Construction">Construction</span>
+            <span class="pill" data-v="Greenfield">Greenfield</span>
+            <span class="pill" data-v="Operational">Operational</span>
+            <span class="pill" data-v="Portfolio">Portfolio</span>
+            <span class="pill" data-v="Refinance">Refinance</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-cta-wrap">
+        <button class="btn-primary" onclick="openModal()">Submit</button>
+
+      </div>
+    </div>
+
+    <!-- PANEL RIGHT -->
+    <div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="ph-left">
+            <div class="ph-dots"><span class="ph-dot"></span><span class="ph-dot"></span><span class="ph-dot"></span></div>
+            <span id="panel-label">Debt · Live Match</span>
+          </div>
+          <div class="ph-right"><span class="pulse"></span>Scoring</div>
+        </div>
+        <div class="deal-summary">
+          <div>
+            <div class="ds-eyebrow">Live mandate</div>
+            <div class="ds-title" id="deal-title">€75M Senior · Hospitality · Germany</div>
+          </div>
+          <div>
+            <div class="ds-count-label">Matches</div>
+            <div class="ds-count-num" id="match-count">47</div>
+          </div>
+        </div>
+        <div class="strongest" id="strongest-row"></div>
+        <table class="ref-table">
+          <thead><tr>
+            <th>Lender</th><th>Type</th><th>Geography</th><th>Ticket</th><th>Products</th><th>Status</th><th class="r">Score</th>
+          </tr></thead>
+          <tbody id="ref-tbody"></tbody>
+        </table>
+        <div class="panel-footer">
+          <div class="pf-trust"><span>Real-time</span><span>Confidential</span><span>100-pt model</span></div>
+          <div class="pf-link" onclick="openModal()">Open shortlist →</div>
+        </div>
+      </div>
+      <div class="intel-wrap">
+        <div>
+          <div class="intel-label">Capital intelligence</div>
+          <div class="intel-approach" id="intel-merged"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Lender marquee -->
+<div class="lender-band">
+  <div class="lb-eyebrow">Active in our matching universe</div>
+  <div class="marquee-wrap">
+    <div class="marquee-track" id="marquee-track"></div>
+  </div>
+</div>
+
+
+
+    </div>
+
+  <!-- 100-pt model -->
+  
+      </div>
+      
+    </div>
+  </div>
+
+  
+    </div>
+  </div>
+
+</div>
+</main>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal()">×</button>
+    <div id="modal-form">
+      <h3>Submit your deal brief</h3>
+      
+      <div class="modal-deal-tag" id="modal-deal-tag">€75M Senior · Hospitality · Germany</div>
+      <div class="fi-row">
+        <div class="fi"><label class="fi-label">First name *</label><input class="fi-input" type="text" placeholder="First name"></div>
+        <div class="fi"><label class="fi-label">Last name *</label><input class="fi-input" type="text" placeholder="Last name"></div>
+      </div>
+      <div class="fi"><label class="fi-label">Email *</label><input class="fi-input" type="email" placeholder="your@email.com"></div>
+      <div class="fi"><label class="fi-label">Company / Firm *</label><input class="fi-input" type="text" placeholder="Your firm"></div>
+      <div class="fi"><label class="fi-label">Phone (optional)</label><input class="fi-input" type="tel" placeholder="Phone"></div>
+      <div class="fi"><label class="fi-label">Additional context (optional)</label><textarea class="fi-input" rows="3" style="resize:none;line-height:1.55" placeholder="Timing, existing terms, specific lender preferences..."></textarea></div>
+      <label class="consent"><input type="checkbox" checked> I agree to be contacted by GreenPeak regarding this mandate.</label>
+      <button class="modal-submit" onclick="submitForm()">Submit</button>
+    </div>
+    <div id="modal-confirm" style="display:none">
+      <div class="confirm">
+        <div class="confirm-check">✓</div>
+        <h3>Your mandate is in.</h3>
+        <p class="confirm-sub">An intelligence brief is on its way. Personal follow-up from our team within one business day.</p>
+        <div class="confirm-steps">
+          <div class="cs-item"><div class="cs-num">1</div>Instant intelligence brief — deal-specific, in your inbox now.</div>
+          <div class="cs-item"><div class="cs-num">2</div>Personal follow-up from a GreenPeak principal within one business day.</div>
+          <div class="cs-item"><div class="cs-num">3</div>Human-curated ranked shortlist delivered within 48 hours.</div>
+        </div>
+        <div class="confirm-cal" onclick="closeModal()"><strong>Book a 20-minute call directly →</strong><br>Skip the queue — choose a slot and we'll prepare a deal-specific briefing.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══ CONTENT ══ */
+const C = {
+  re: {
+    Hospitality: {
+      sum:'€{s}M · Hospitality · {g}', count:47,
+      pos:`Senior and whole-loan financing at <em>€{s}m</em> for stabilised European hospitality is a <em>competitive segment</em>. Pricing has tightened roughly <em>30–40 bps</em> over six months as institutional capital rotated into operating real estate.`,
+      sm:{name:'European Debt Fund',type:'Debt Fund · UK',detail:'Whole loan · Mezz · €30–150M',tags:['Hospitality','Living','EU'],score:96},
+      rows:[
+        {l:'Barings',t:'Insurance Capital',g:'Pan-EU',tk:'€50–250M',p:'Senior · Stretch',s:'active',sc:92},
+        {l:'DZ HYP',t:'Pfandbrief Bank',g:'DACH',tk:'€40–200M',p:'Senior · Pfandbrief',s:'active',sc:88},
+        {l:'PGIM Real Estate',t:'Debt Platform',g:'UK · EU · US',tk:'€25–120M',p:'Mezz · Whole loan',s:'active',sc:84},
+        {l:'M&G Investments',t:'Insurance Capital',g:'UK · EU',tk:'€40–180M',p:'Senior · Long-dated',s:'selective',sc:81},
+        {l:'Cheyne Capital',t:'Debt Fund',g:'UK · EU',tk:'€20–100M',p:'Mezz · Bridge',s:'active',sc:78}
+      ],
+      approach:``
+    },
+    Logistics: {
+      sum:'€{s}M Senior · Logistics · {g}', count:62,
+      pos:`Senior debt at <em>€{s}m</em> for European logistics remains the <em>most liquid</em> real estate debt segment. Pricing tightening as Pfandbrief banks and insurance capital compete for stabilised stock.`,
+      sm:{name:'Allianz Real Estate',type:'Insurance Capital · Pan-EU',detail:'Senior · €50–250M · 7–10y',tags:['Logistics','Prime','Long-dated'],score:96},
+      rows:[
+        {l:'DZ HYP',t:'Pfandbrief Bank',g:'DACH',tk:'€50–200M',p:'Senior · Pfandbrief',s:'active',sc:93},
+        {l:'AXA IM Alts',t:'Insurance Capital',g:'Pan-EU',tk:'€80–300M',p:'Senior · Long-dated',s:'active',sc:91},
+        {l:'Aviva Investors',t:'Insurance Capital',g:'UK · EU',tk:'€40–180M',p:'Senior · Whole loan',s:'active',sc:87},
+        {l:'Barings',t:'Insurance Capital',g:'Pan-EU',tk:'€50–250M',p:'Senior · Stretch',s:'active',sc:84},
+        {l:'Cheyne Capital',t:'Debt Fund',g:'UK · EU',tk:'€20–100M',p:'Mezz · Bridge',s:'active',sc:80}
+      ],
+      approach:`<strong>Two to three weeks to first term sheet.</strong> Pfandbrief banks and insurance capital are competing actively for stabilised logistics — this is the market where sequenced outreach delivers the tightest pricing. Lead with two primary lenders in parallel; debt funds only if there is a value-add angle.`
+    },
+    _d: {
+      sum:'€{s}M · {a} · {g}', count:50,
+      pos:`Financing at <em>€{s}m</em> for <em>{a}</em> in <em>{g}</em> sits across multiple lender categories. The right structure depends on sponsor profile, leverage requirement, and timing.`,
+      sm:{name:'DZ HYP',type:'Pfandbrief Bank · DACH',detail:'Senior · €40–200M · LTV ≤ 60%',tags:['Core','DACH','Pfandbrief'],score:88},
+      rows:[
+        {l:'Debt Fund (UK)',t:'Debt Fund',g:'UK · EU',tk:'€30–150M',p:'Whole loan · Mezz',s:'active',sc:86},
+        {l:'Barings',t:'Insurance Capital',g:'Pan-EU',tk:'€50–250M',p:'Senior · Stretch',s:'active',sc:84},
+        {l:'PGIM Real Estate',t:'Debt Platform',g:'UK · EU · US',tk:'€25–120M',p:'Mezz · Whole loan',s:'active',sc:81},
+        {l:'M&G Investments',t:'Insurance Capital',g:'UK · EU',tk:'€40–180M',p:'Senior · Long-dated',s:'selective',sc:78},
+        {l:'Cheyne Capital',t:'Debt Fund',g:'UK · EU',tk:'€20–100M',p:'Mezz · Bridge',s:'active',sc:75}
+      ],
+      approach:`<strong>Two to three weeks to first term sheet.</strong> GreenPeak maps the specific lender personas with current appetite for your structure, then sequences outreach to set pricing benchmarks and create competitive tension — the order is what compresses time to terms.`
+    }
+  },
+  infra: {
+    BESS: {
+      sum:'€{s}M Senior PF · Battery Storage · {g}', count:38,
+      pos:`Senior project finance at <em>€{s}m</em> for European battery storage is in a <em>structurally favoured</em> moment. Iberian and Italian pipelines are deep; infrastructure debt funds and commercial banks are competing actively for bankable projects.`,
+      sm:{name:'Macquarie Asset Management',type:'Infra Debt Fund · Global',detail:'Senior PF · €80–300M · 12–15y',tags:['BESS','Iberia','Merchant'],score:95},
+      rows:[
+        {l:'Banco Santander',t:'Commercial Bank',g:'Iberia',tk:'€50–200M',p:'Senior · Mini-perm',s:'active',sc:91},
+        {l:'Allianz Capital Partners',t:'Insurance · Infra',g:'Pan-EU',tk:'€100–300M',p:'Senior · Long-dated',s:'selective',sc:87},
+        {l:'BBVA',t:'Commercial Bank',g:'Iberia · LatAm',tk:'€40–180M',p:'Senior · Construction',s:'active',sc:85},
+        {l:'NatWest Group',t:'Commercial Bank',g:'UK · EU',tk:'€30–150M',p:'Senior · Construction',s:'active',sc:82},
+        {l:'Bluefield Partners',t:'Specialist Sector',g:'UK · EU',tk:'€20–80M',p:'Senior · Holdco',s:'active',sc:78}
+      ],
+      approach:``
+    },
+    'Solar PV': {
+      sum:'€{s}M Senior PF · Solar PV · {g}', count:54,
+      pos:`Senior project finance at <em>€{s}m</em> for European solar is a <em>mature, liquid debt market</em>. Pricing reflects merchant exposure, PPA structure, and grid connection certainty more than asset class itself.`,
+      sm:{name:'BBVA',type:'Commercial Bank · Iberia',detail:'Senior PF · €40–200M · 15y',tags:['Solar','Iberia','PPA'],score:93},
+      rows:[
+        {l:'Macquarie Asset Management',t:'Infra Debt Fund',g:'Global',tk:'€80–300M',p:'Senior · Long-dated',s:'active',sc:91},
+        {l:'Banco Santander',t:'Commercial Bank',g:'Iberia',tk:'€50–200M',p:'Senior · Mini-perm',s:'active',sc:89},
+        {l:'Allianz Capital Partners',t:'Insurance · Infra',g:'Pan-EU',tk:'€80–250M',p:'Senior · Long-dated',s:'active',sc:87},
+        {l:'Bluefield Partners',t:'Specialist Sector',g:'UK · EU',tk:'€30–100M',p:'Senior · Holdco',s:'active',sc:84},
+        {l:'NatWest Group',t:'Commercial Bank',g:'UK · EU',tk:'€30–150M',p:'Senior · Construction',s:'active',sc:81}
+      ],
+      approach:`<strong>Two waves. Two to three weeks to first term sheet.</strong> Operational solar with PPAs is bankable across most European infra lenders — the differentiation is sequencing. Infra debt funds go first for speed, one Iberian commercial bank runs in parallel for local relationship pricing, and insurance debt follows for the long-tenor refinance tranche.`
+    },
+    _d: {
+      sum:'€{s}M Senior PF · {a} · {g}', count:40,
+      pos:`Project finance at <em>€{s}m</em> for European <em>{a}</em> sits at the intersection of infrastructure debt and commercial bank capital. The right structure depends on merchant exposure, grid status, and offtake certainty.`,
+      sm:{name:'Macquarie Asset Management',type:'Infra Debt Fund · Global',detail:'Senior PF · €80–300M · 12–15y',tags:['Infra','Global'],score:90},
+      rows:[
+        {l:'Banco Santander',t:'Commercial Bank',g:'Iberia',tk:'€50–200M',p:'Senior · Mini-perm',s:'active',sc:87},
+        {l:'NatWest Group',t:'Commercial Bank',g:'UK · EU',tk:'€30–150M',p:'Senior · Construction',s:'active',sc:84},
+        {l:'Allianz Capital Partners',t:'Insurance · Infra',g:'Pan-EU',tk:'€100–300M',p:'Senior · Long-dated',s:'selective',sc:81},
+        {l:'BBVA',t:'Commercial Bank',g:'Iberia · LatAm',tk:'€40–180M',p:'Senior · Construction',s:'active',sc:78},
+        {l:'Bluefield Partners',t:'Specialist Sector',g:'UK · EU',tk:'€20–80M',p:'Senior · Holdco',s:'active',sc:75}
+      ],
+      approach:`<strong>Two to three weeks to first term sheet.</strong> Bankable greenfield runs through infra debt funds and project finance banks first — then insurance debt for the refinance. The right entry point depends on offtake, planning, and grid status. We map this before any outreach begins.`
+    }
+  }
+};
+
+const LENDERS = ['Allianz Real Estate','AXA IM Alts','Aviva Investors','Barings','BBVA','Cheyne Capital','DZ HYP','DWS','ICG','LaSalle','M&G','Macquarie','NatWest Group','PGIM Real Estate','Santander'];
+
+let universe = 're';
+
+function pv(f){const el=document.querySelector(`[data-f="${f}"] .on`);return el?el.dataset.v:'';}
+function sz(){return document.getElementById(universe==='re'?'re-sz-out':'infra-sz-out')?.textContent||'75';}
+
+function getContent(){
+  const asset=pv(universe==='re'?'re-asset':'infra-asset')||(universe==='re'?'Hospitality':'BESS');
+  const geo=pv(universe==='re'?'re-geo':'infra-geo')||(universe==='re'?'Germany':'Spain');
+  const src=C[universe];
+  const d=src[asset]||src._d;
+  return {d,asset,geo,size:sz()};
+}
+
+function sub(s,o){return s.replace(/{s}/g,o.s).replace(/{a}/g,o.a||'').replace(/{g}/g,o.g||'');}
+
+function render(){
+  const {d,asset,geo,size}=getContent();
+  const v={s:size,a:asset,g:geo};
+  // Deal summary
+  document.getElementById('deal-title').textContent=sub(d.sum,v);
+  document.getElementById('match-count').textContent=d.count;
+  document.getElementById('modal-deal-tag').textContent=sub(d.sum,v);
+  // Intel
+  // Merge positioning + approach into single paragraph
+  const posText = sub(d.pos,v);
+  const approachText = d.approach;
+  document.getElementById('intel-merged').innerHTML = posText + ' <span style="display:inline-block;margin-top:10px">' + approachText + '</span>';
+  // Strongest
+  const sm=d.sm;
+  document.getElementById('strongest-row').innerHTML=`
+    <div>
+      <div class="sm-name-row"><div class="sm-name">${sm.name}</div><div class="sm-badge">Strongest Match</div></div>
+      <div class="sm-meta">${sm.type}</div>
+      <div class="sm-detail">${sm.detail}</div>
+      <div class="sm-tags">${sm.tags.map(t=>`<span class="sm-tag">${t}</span>`).join('')}</div>
+    </div>
+    <div class="sm-score">${sm.score}</div>`;
+  // Table
+  document.getElementById('ref-tbody').innerHTML=d.rows.map(r=>`
+    <tr>
+      <td class="col-lender">${r.l}</td>
+      <td class="col-meta">${r.t}</td>
+      <td class="col-meta">${r.g}</td>
+      <td class="col-meta">${r.tk}</td>
+      <td class="col-meta">${r.p}</td>
+      <td><span class="status-dot ${r.s==='active'?'active-s':'select-s'}"><span class="dot"></span>${r.s==='active'?'Active':'Selective'}</span></td>
+      <td class="col-score">${r.sc}</td>
+    </tr>`).join('');
+}
+
+function setU(u,btn){
+  universe=u;
+  document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('fre').classList.toggle('on',u==='re');
+  document.getElementById('finfra').classList.toggle('on',u==='infra');
+  document.getElementById('panel-label',(u==='re'?'Debt RE':'Debt Infra')+' · Live Match');
+  render();
+}
+
+document.addEventListener('click',e=>{
+  const pill=e.target.closest('.pill');
+  if(!pill) return;
+  const group=pill.closest('[data-f]');
+  if(!group) return;
+  group.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+  pill.classList.add('on');
+  render();
+});
+
+// Marquee
+const track=document.getElementById('marquee-track');
+const all=[...LENDERS,...LENDERS];
+track.innerHTML=all.map(n=>`<span class="l-name">${n}</span>`).join('');
+
+// Modal
+function openModal(){
+  document.getElementById('modal-form').style.display='';
+  document.getElementById('modal-confirm').style.display='none';
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
+function submitForm(){
+  document.getElementById('modal-form').style.display='none';
+  document.getElementById('modal-confirm').style.display='';
+}
+
+render();
+</script>
+</body>
+</html>
